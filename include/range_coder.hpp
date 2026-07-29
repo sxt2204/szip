@@ -110,7 +110,7 @@ public:
         cxt1_ = (cxt1_ & 0xFF00) | cxt0_;
         cxt2_ = (cxt2_ & 0xFFFF00) | cxt0_;
 
-        if (__builtin_expect(cxt0_ >= 256, 0)) {
+        if (cxt0_ >= 256) {
             uint8_t finished_byte = static_cast<uint8_t>(cxt0_ & 0xFF);
             uint8_t prev_byte = static_cast<uint8_t>(cxt1_ >> 8);
             
