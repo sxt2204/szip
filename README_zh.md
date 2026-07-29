@@ -48,18 +48,24 @@ graph LR
 # 克隆仓库
 git clone https://github.com/sxt2204/szip.git
 cd szip
-
-# 构建并安装
-mkdir build && cd build
-cmake ..
-make -j4
-sudo make install
 ```
 
+### macOS / Linux
+直接运行全自动安装脚本（需要 `sudo` 权限以复制到 `/usr/local/bin`）：
+```bash
+./install.sh
+```
 安装完成后，你可以通过标准的 Unix 手册查阅高级文档：
 ```bash
 man szip
 ```
+
+### Windows
+双击 `install.bat`，或者在命令提示符下运行：
+```cmd
+install.bat
+```
+它将自动构建 `szip`，将其安装到 `%USERPROFILE%\szip\bin`，并使用 PowerShell **安全地将其自动添加到当前用户的环境变量 `PATH` 中**！完成后，只需重启你的终端即可使用。
 
 ---
 

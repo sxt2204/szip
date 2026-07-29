@@ -48,18 +48,24 @@ graph LR
 # リポジトリをクローン
 git clone https://github.com/sxt2204/szip.git
 cd szip
-
-# ビルドとインストール
-mkdir build && cd build
-cmake ..
-make -j4
-sudo make install
 ```
 
+### macOS / Linux
+自動インストールスクリプトを実行するだけです（`/usr/local/bin` へのアクセスには `sudo` が必要です）：
+```bash
+./install.sh
+```
 インストール後、包括的な Unix マニュアルページにアクセスできます：
 ```bash
 man szip
 ```
+
+### Windows
+`install.bat` をダブルクリックするか、コマンドプロンプトから実行します：
+```cmd
+install.bat
+```
+これにより、自動的に `szip` がビルドされ、`%USERPROFILE%\szip\bin` にインストールされ、PowerShell を介して安全にユーザーの環境変数 `PATH` に追加されます。完了後、ターミナルを再起動するだけで使用できます。
 
 ---
 

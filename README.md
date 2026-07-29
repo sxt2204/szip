@@ -48,18 +48,24 @@ No external library dependencies are required. Only a C++20 compiler and CMake.
 # Clone the repository
 git clone https://github.com/sxt2204/szip.git
 cd szip
-
-# Build and Install
-mkdir build && cd build
-cmake ..
-make -j4
-sudo make install
 ```
 
+### macOS / Linux
+Simply run the installation script (requires `sudo` for `/usr/local/bin` access):
+```bash
+./install.sh
+```
 After installation, you can access the comprehensive Unix manual page:
 ```bash
 man szip
 ```
+
+### Windows
+Double-click `install.bat` or run it from a Command Prompt:
+```cmd
+install.bat
+```
+This will automatically build `szip`, install it to `%USERPROFILE%\szip\bin`, and safely add it to your User `PATH` environment variable via PowerShell! Just restart your terminal afterward.
 
 ---
 
