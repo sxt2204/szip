@@ -14,9 +14,10 @@ fi
 
 # 2. Build the project
 echo "[1/3] Building Szip..."
-mkdir -p build
+rm -rf build
+mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
 make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
 
 if [ $? -ne 0 ]; then

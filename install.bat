@@ -17,7 +17,8 @@ set "INSTALL_DIR=%USERPROFILE%\szip"
 set "BIN_DIR=%INSTALL_DIR%\bin"
 
 echo [1/3] Building Szip...
-if not exist build mkdir build
+if exist build rmdir /s /q build
+mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%INSTALL_DIR%" ..
 cmake --build . --config Release -j 4
