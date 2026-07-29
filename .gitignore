@@ -1,0 +1,52 @@
+# Prerequisites & Build Directories
+/build/
+/out/
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.out
+*.exe
+szip
+test/szip
+
+# CMake & IDEs
+CMakeCache.txt
+CMakeFiles/
+CMakeLists.txt.user
+*.cmake
+/Makefile
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cache/
+
+# macOS System Files
+.DS_Store
+*.swp
+*~
+
+# Test Artifacts & Compressed Outputs
+*.sz
+*.mov
+*.mp4
+*.bin
+test_*.txt
+test.txt
+test_out.txt
+main_huff.sz
+main_neural.sz
+out.cpp
+test/testfile/
+test/extracted_dir/
+test/szip_temp_dir.tar
+
+# General Logs & Temporary files
+*.log
+*.tmp
+/tmp/
