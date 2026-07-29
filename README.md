@@ -1,17 +1,19 @@
-# Szip (Song-Zip) 🚀
+# Szip (Song-Zip)
+
+[English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg?style=flat-square)
 ![Build](https://img.shields.io/badge/build-CMake-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-![Version](https://img.shields.io/badge/version-v0.5-orange?style=flat-square)
+![Version](https://img.shields.io/badge/version-v1.0.0-orange?style=flat-square)
 
-**Szip** is a modern, block-based, multi-threaded adaptive lossless data compression engine written in pure C++20. 
+**Szip** is a modern, adaptive, multi-stage lossless data compression engine written in pure C++20. 
 
-Instead of relying on a single static algorithm, `szip` divides input streams into modular blocks (default: `64 KB`) and dynamically samples each block using a **Shannon Entropy Probe** to determine and deploy the optimal algorithmic pipeline on the fly!
+Instead of relying on a single static algorithm, `szip` divides input streams into dynamic chunks using Content-Defined Chunking (CDC) and a Shannon Entropy Probe. It deploys the optimal algorithmic pipeline on the fly!
 
 ---
 
-## 🌟 Key Architecture & Features
+## Key Architecture & Features
 
 ```mermaid
 graph LR
@@ -22,80 +24,83 @@ graph LR
     B -- Standard Data --> F[LZ77 -> MTF -> NEURAL]
 ```
 
-### 🔥 Algorithmic Arsenal
-* **Infinite Window LZ77 (v0.5):** Uses a 24-bit (16-million entry) hash table and **LEB128 VarInt** encoding, completely removing historical dictionary size limits and achieving over 500MB/s scanning throughput per core!
-* **DELTA4 Multimedia Specialization:** A dedicated 4-byte domain filter designed to crack open highly dense media containers (`.mov`, `.mp4`) by transforming 32-bit monotonically increasing frame offsets into highly compressible zero-sequences.
-* **Autoregressive Neural Bit-Predictor:** A non-linear statistical predictive entropy encoder capable of squeezing bit-level patterns beyond classic Huffman limits.
-* **Long-Run RLE (v0.4):** Employs dynamic 32-bit run lengths capable of compressing up to **4 GB of contiguous identical bytes into just 6 bytes**.
-* **Classical Transforms & Coders:** Full inline implementations of Burrows-Wheeler Transform (**BWT**), Move-To-Front (**MTF** with memory-move kernel optimization), **Huffman** coding, and adaptive **Range Coding**.
+### Algorithmic Arsenal
+* **Infinite Window LZ77:** Uses a 24-bit hash table and LEB128 VarInt encoding, completely removing historical dictionary size limits.
+* **Autoregressive Neural Predictor:** A non-linear statistical predictive entropy encoder capable of squeezing bit-level patterns beyond classic Huffman limits.
+* **DELTA4 Multimedia Specialization:** A dedicated 4-byte domain filter designed to crack open highly dense media containers (.mov, .mp4).
+* **Long-Run RLE:** Employs dynamic 32-bit run lengths capable of compressing up to 4 GB of contiguous identical bytes into just 6 bytes.
+* **Classical Transforms:** Full inline implementations of Burrows-Wheeler Transform (BWT) and Move-To-Front (MTF).
 
-### ⚡ Adaptive Edge & Multithreading
-* **Zero-Loss STORE Fallback:** Automatically detects white noise, encryption, and pre-compressed video streams to skip unnecessary computing, ensuring **0% inflation** on incompressible files.
-* **Parallel Core Execution:** Distributes blocks across modern CPU cores using standard C++ concurrency (`-t / --threads` option).
+### Adaptive Edge & Multithreading
+* **Zero-Loss STORE Fallback:** Automatically detects white noise and pre-compressed streams, ensuring 0% inflation on incompressible files.
+* **Content-Defined Chunking:** Advanced chunk boundary detection based on entropy variance (-E), allowing isolation of different data types for max compression.
+* **Brute-Force Optimization:** Pass `-Ea` to automatically sweep parameters in memory and find the absolute optimal threshold for the file.
+* **Directory Support:** Automatically packs directories into tarballs seamlessly before compression.
+* **Parallel Execution:** Distributes blocks across modern CPU cores using standard C++ concurrency.
 
 ---
 
-## 🛠️ Build & Installation
+## Build & Installation
 
-No external library dependencies are required! Only a C++20 compiler and CMake.
+No external library dependencies are required. Only a C++20 compiler and CMake.
 
 ```bash
-# Clone or enter the directory
+# Clone the repository
 git clone https://github.com/sxt2204/szip.git
 cd szip
 
-# Build using CMake
+# Build and Install
 mkdir build && cd build
 cmake ..
 make -j4
+sudo make install
+```
+
+After installation, you can access the comprehensive Unix manual page:
+```bash
+man szip
 ```
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 ```bash
-./szip -h
 # Usage:
-#   Compress:    ./szip -c <input> <output.sz> [options]
-#   Decompress:  ./szip -d <input.sz> <output>
-#   Info:        ./szip -i <input.sz>
+#   Compress:    szip -c <input> <output.sz> [options]
+#   Decompress:  szip -d <input.sz> <output>
+#   Info:        szip -i <input.sz>
+#   Evaluate:    szip -Ev <input>
 ```
 
 ### Quick Examples
 
-#### 1. Smart Adaptive Compression (Recommended)
-Automatically analyzes entropy and utilizes multithreading across 64KB blocks:
+**1. Smart Adaptive Compression (Recommended)**
+Automatically analyzes entropy and utilizes multithreading:
 ```bash
-./szip -c archive.tar archive.tar.sz
+szip -c archive.tar archive.sz -E
 ```
 
-#### 2. Multistep Decompression & Verification
+**2. Maximize Compression (Brute-Force Optimal Threshold)**
+Sweep thresholds in memory to compress perfectly:
 ```bash
-./szip -d archive.tar.sz archive_restored.tar
+szip -c dataset.bin dataset.sz -Ea
 ```
 
-#### 3. Custom Pipeline Forcing
-Force a custom algorithmic sequence (e.g., BWT -> MTF -> RLE -> Huffman):
+**3. Multistep Decompression**
 ```bash
-./szip -c data.bin data.sz --pipeline bwt,mtf,rle,huffman
+szip -d dataset.sz dataset_restored
 ```
 
-#### 4. Tuning Block Sizes (e.g., 4MB Blocks)
+**4. Scripting & Automation**
+Evaluate the best threshold without writing the file:
 ```bash
-./szip -c video.mov video.mov.sz -b 4096
+BEST=$(szip -Ev firmware.bin)
+szip -c firmware.bin firmware.sz -e $BEST
 ```
 
 ---
 
-## 🏆 Real-World Benchmarks
-
-Tested on a highly compressed, high-entropy multimedia QuickTime file (**208 MB `.mov`**):
-* **Naive Compression Attempt:** Results in excessive execution time and +1.07% file bloat.
-* **Szip v0.5 (64KB Adaptive + DELTA4 Probe):** Successfully identifies internal frame indexing tables, bypassing uncompressible video frames via `STORE` while compressing metadata to **save >217 KB in ~600 ms**!
-
----
-
-## 📜 License
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for more details.
