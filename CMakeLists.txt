@@ -19,7 +19,11 @@ add_executable(szip
     src/neural.cpp
 )
 
-target_compile_options(szip PRIVATE -Wall -Wextra -O3 -ffast-math -funroll-loops -march=native -flto)
+if(MSVC)
+    target_compile_options(szip PRIVATE /W4 /O2 /fp:fast /GL)
+else()
+    target_compile_options(szip PRIVATE -Wall -Wextra -O3 -ffast-math -funroll-loops -march=native -flto)
+endif()
 set_target_properties(szip PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 # ---------------------------------------------------------
