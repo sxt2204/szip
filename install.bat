@@ -13,7 +13,7 @@ if %errorlevel% neq 0 (
 )
 
 REM 2. Set install directory
-set "INSTALL_DIR=%USERPROFILE%\szip"
+set "INSTALL_DIR=%USERPROFILE%\sxzip"
 set "BIN_DIR=%INSTALL_DIR%\bin"
 
 echo [1/3] Building Sxzip...

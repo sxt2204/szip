@@ -1,4 +1,4 @@
-# Szip (Sxzip)
+# Sxzip (Sxzip)
 
 [English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
@@ -7,9 +7,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Version](https://img.shields.io/badge/version-v1.0.0-orange?style=flat-square)
 
-**Szip** is a modern, adaptive, multi-stage lossless data compression engine written in pure C++20. 
+**Sxzip** is a modern, adaptive, multi-stage lossless data compression engine written in pure C++20. 
 
-Instead of relying on a single static algorithm, `szip` divides input streams into dynamic chunks using Content-Defined Chunking (CDC) and a Shannon Entropy Probe. It deploys the optimal algorithmic pipeline on the fly!
+Instead of relying on a single static algorithm, `sxzip` divides input streams into dynamic chunks using Content-Defined Chunking (CDC) and a Shannon Entropy Probe. It deploys the optimal algorithmic pipeline on the fly!
 
 ---
 
@@ -46,8 +46,8 @@ No external library dependencies are required. Only a C++20 compiler and CMake.
 
 ```bash
 # Clone the repository
-git clone https://github.com/sxt2204/szip.git
-cd szip
+git clone https://github.com/sxt2204/sxzip.git
+cd sxzip
 ```
 
 ### macOS / Linux
@@ -65,7 +65,7 @@ Double-click `install.bat` or run it from a Command Prompt:
 ```cmd
 install.bat
 ```
-This will automatically build `szip`, install it to `%USERPROFILE%\szip\bin`, and safely add it to your User `PATH` environment variable via PowerShell! Just restart your terminal afterward.
+This will automatically build `sxzip`, install it to `%USERPROFILE%\sxzip\bin`, and safely add it to your User `PATH` environment variable via PowerShell! Just restart your terminal afterward.
 
 ---
 

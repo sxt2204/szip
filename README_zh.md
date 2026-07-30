@@ -1,4 +1,4 @@
-# Szip (Sxzip)
+# Sxzip (Sxzip)
 
 [English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
@@ -7,9 +7,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Version](https://img.shields.io/badge/version-v1.0.0-orange?style=flat-square)
 
-**Szip** 是一个使用纯 C++20 编写的现代化、自适应、多阶无损数据压缩引擎。
+**Sxzip** 是一个使用纯 C++20 编写的现代化、自适应、多阶无损数据压缩引擎。
 
-`szip` 不依赖于单一的静态算法，而是通过基于香农熵探测器的**基于内容分块 (CDC)** 技术，将输入流划分为动态大小的区块，并实时为每个区块部署最优的算法流水线！
+`sxzip` 不依赖于单一的静态算法，而是通过基于香农熵探测器的**基于内容分块 (CDC)** 技术，将输入流划分为动态大小的区块，并实时为每个区块部署最优的算法流水线！
 
 ---
 
@@ -46,8 +46,8 @@ graph LR
 
 ```bash
 # 克隆仓库
-git clone https://github.com/sxt2204/szip.git
-cd szip
+git clone https://github.com/sxt2204/sxzip.git
+cd sxzip
 ```
 
 ### macOS / Linux
@@ -65,7 +65,7 @@ man sxzip
 ```cmd
 install.bat
 ```
-它将自动构建 `szip`，将其安装到 `%USERPROFILE%\szip\bin`，并使用 PowerShell **安全地将其自动添加到当前用户的环境变量 `PATH` 中**！完成后，只需重启你的终端即可使用。
+它将自动构建 `sxzip`，将其安装到 `%USERPROFILE%\sxzip\bin`，并使用 PowerShell **安全地将其自动添加到当前用户的环境变量 `PATH` 中**！完成后，只需重启你的终端即可使用。
 
 ---
 

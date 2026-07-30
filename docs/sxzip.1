@@ -1,4 +1,4 @@
-.TH szip 1 "July 2026" "szip 1.0.0" "User Commands"
+.TH sxzip 1 "July 2026" "sxzip 1.0.0" "User Commands"
 .SH NAME
 \fBszip\fR \- Advanced adaptive multi-stage compressor with neural modeling
 .SH SYNOPSIS
@@ -48,14 +48,14 @@ Number of threads to use. By default (0), it automatically scales to the number 
 .SH EXAMPLES
 .TP
 Compress a directory with maximum brute-force optimization:
-szip \-c ./my_project release.sxz \-Ea
+sxzip \-c ./my_project release.sxz \-Ea
 .TP
 Quietly find the best entropy threshold for a mixed binary:
-BEST=$(szip \-Ev firmware.bin)
+BEST=$(sxzip \-Ev firmware.bin)
 .br
-szip \-c firmware.bin firmware.sxz \-e $BEST
+sxzip \-c firmware.bin firmware.sxz \-e $BEST
 .TP
 Extract an archive quickly using all CPU cores:
-szip \-d dataset.sxz dataset_extracted \-t 0
+sxzip \-d dataset.sxz dataset_extracted \-t 0
 .SH AUTHOR
 Designed and developed by the Antigravity engineering team.

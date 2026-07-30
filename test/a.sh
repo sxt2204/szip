@@ -5,9 +5,9 @@ NUM_FILES=${1:-100}
 TEST_DIR="testfile"
 ARCHIVE="testfile.sxz"
 
-echo "[0/4] Compiling latest szip engine (Silent)..."
+echo "[0/4] Compiling latest sxzip engine (Silent)..."
 make -C ../build -j4 > /dev/null 2>&1
-cp ../build/szip ./szip
+cp ../build/sxzip ./sxzip
 
 # Clean up any previous runs
 rm -rf "$TEST_DIR" "$ARCHIVE" extracted_dir
@@ -16,7 +16,7 @@ mkdir -p "$TEST_DIR"
 echo "[1/4] Generating $NUM_FILES mixed-entropy files in $TEST_DIR/..."
 for (( i=1; i<=NUM_FILES; i++ )); do
     echo "This is test file number $i." > "$TEST_DIR/file_$i.txt"
-    echo "Szip is an incredibly advanced compressor." >> "$TEST_DIR/file_$i.txt"
+    echo "Sxzip is an incredibly advanced compressor." >> "$TEST_DIR/file_$i.txt"
     if (( i % 5 == 0 )); then
         head -c 200 /dev/urandom | base64 >> "$TEST_DIR/file_$i.txt"
     fi

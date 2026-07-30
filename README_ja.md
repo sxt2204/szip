@@ -1,4 +1,4 @@
-# Szip (Sxzip)
+# Sxzip (Sxzip)
 
 [English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
@@ -7,9 +7,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Version](https://img.shields.io/badge/version-v1.0.0-orange?style=flat-square)
 
-**Szip** は、純粋な C++20 で書かれた、最新の適応型マルチステージ可逆データ圧縮エンジンです。
+**Sxzip** は、純粋な C++20 で書かれた、最新の適応型マルチステージ可逆データ圧縮エンジンです。
 
-単一の静的アルゴリズムに依存するのではなく、`szip` は Content-Defined Chunking (CDC) とシャノンエントロピー探索を使用して入力ストリームを動的なチャンクに分割し、オンザフライで最適なアルゴリズムパイプラインを展開します！
+単一の静的アルゴリズムに依存するのではなく、`sxzip` は Content-Defined Chunking (CDC) とシャノンエントロピー探索を使用して入力ストリームを動的なチャンクに分割し、オンザフライで最適なアルゴリズムパイプラインを展開します！
 
 ---
 
@@ -46,8 +46,8 @@ graph LR
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/sxt2204/szip.git
-cd szip
+git clone https://github.com/sxt2204/sxzip.git
+cd sxzip
 ```
 
 ### macOS / Linux
@@ -65,7 +65,7 @@ man sxzip
 ```cmd
 install.bat
 ```
-これにより、自動的に `szip` がビルドされ、`%USERPROFILE%\szip\bin` にインストールされ、PowerShell を介して安全にユーザーの環境変数 `PATH` に追加されます。完了後、ターミナルを再起動するだけで使用できます。
+これにより、自動的に `sxzip` がビルドされ、`%USERPROFILE%\sxzip\bin` にインストールされ、PowerShell を介して安全にユーザーの環境変数 `PATH` に追加されます。完了後、ターミナルを再起動するだけで使用できます。
 
 ---
 

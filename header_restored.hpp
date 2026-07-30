@@ -18,7 +18,7 @@
 #include <future>
 #include <thread>
 
-namespace szip {
+namespace sxzip {
 
 struct BlockInfo {
     size_t block_index = 0;
@@ -430,6 +430,6 @@ public:
     }
 };
 
-} // namespace szip
+} // namespace sxzip
 
 #endif // SZIP_HEADER_HPP

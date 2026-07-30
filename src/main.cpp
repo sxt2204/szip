@@ -1,6 +1,6 @@
 #include "sxzip_header.hpp"
 #include <iostream>
-#include <fstream>
+#include <fstream> // IWYU pragma: keep
 #include <string>
 #include <vector>
 #include <chrono>
@@ -39,7 +39,7 @@ void write_file(const std::string& filepath, const std::vector<uint8_t>& data) {
 }
 
 void print_usage(const char* prog_name) {
-    std::cout << "Sxzip (szip) v0.3 - Block-Based Adaptive Data Compressor\n"
+    std::cout << "Sxzip (sxzip) v0.3 - Block-Based Adaptive Data Compressor\n"
               << "Usage:\n"
               << "  Compress:    " << prog_name << " -c <input> <output.sxz> [options]\n"
               << "  Decompress:  " << prog_name << " -d <input.sxz> <output>\n"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Szip Unix Installation Script (macOS / Linux)
+# Sxzip Unix Installation Script (macOS / Linux)
 
 echo "========================================="
 echo " Sxzip Installation (macOS / Linux) "
