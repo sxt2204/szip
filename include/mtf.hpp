@@ -1,10 +1,10 @@
-#ifndef SZIP_MTF_HPP
-#define SZIP_MTF_HPP
+#ifndef SXZP_MTF_HPP
+#define SXZP_MTF_HPP
 
 #include <vector>
 #include <cstdint>
 
-namespace szip {
+namespace sxzip {
 
 class Mtf {
 public:
@@ -12,6 +12,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_MTF_HPP
+#endif // SXZP_MTF_HPP

@@ -1,5 +1,5 @@
-#ifndef SZIP_HEADER_HPP
-#define SZIP_HEADER_HPP
+#ifndef SXZP_HEADER_HPP
+#define SXZP_HEADER_HPP
 
 #include "algorithm_base.hpp"
 #include "delta.hpp"
@@ -20,7 +20,7 @@
 #include <future>
 #include <thread>
 
-namespace szip {
+namespace sxzip {
 
 struct BlockInfo {
     size_t block_index = 0;
@@ -36,7 +36,7 @@ struct SzipFileInfo {
     size_t total_compressed_size = 0;
 };
 
-class SzipEngine {
+class SxzipEngine {
 public:
     static constexpr uint8_t MAGIC[4] = {'S', 'Z', 'I', 'P'};
     static constexpr uint8_t VERSION = 0x05;
@@ -323,7 +323,7 @@ public:
             // Print progress bar
             if (!silent_progress) {
                 int progress = static_cast<int>((static_cast<float>(end_idx) / total_blocks) * 100);
-                std::cerr << "\r[szip] Compressing... [";
+                std::cerr << "\r[sxzip] Compressing... [";
                 for (int p = 0; p < 40; ++p) {
                     if (p < (progress * 40 / 100)) std::cerr << "=";
                     else if (p == (progress * 40 / 100)) std::cerr << ">";
@@ -339,12 +339,12 @@ public:
 
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input) {
         if (input.size() < 6) {
-            throw std::runtime_error("Invalid .sz file: Header too small");
+            throw std::runtime_error("Invalid .sxz file: Header too small");
         }
 
         // Validate Magic
         if (input[0] != MAGIC[0] || input[1] != MAGIC[1] || input[2] != MAGIC[2] || input[3] != MAGIC[3]) {
-            throw std::runtime_error("Invalid .sz file: Magic header mismatch (expected SZIP)");
+            throw std::runtime_error("Invalid .sxz file: Magic header mismatch (expected SXZP)");
         }
 
         uint8_t ver = input[4];
@@ -365,7 +365,7 @@ public:
             return decompress_single_block(payload, pipeline);
         } else if (ver >= 0x03 && ver <= 0x05) { // v0.3 to v0.5 Block-Based Adaptive format
             if (input.size() < 9) {
-                throw std::runtime_error("Invalid .sz file: Truncated v0.3 header");
+                throw std::runtime_error("Invalid .sxz file: Truncated v0.3 header");
             }
 
             uint32_t num_blocks = 0;
@@ -378,18 +378,18 @@ public:
 
             for (uint32_t b = 0; b < num_blocks; ++b) {
                 if (idx >= input.size()) {
-                    throw std::runtime_error("Corrupted .sz file: Truncated block header");
+                    throw std::runtime_error("Corrupted .sxz file: Truncated block header");
                 }
 
                 uint8_t count = input[idx++];
                 std::vector<AlgorithmType> pipeline;
                 for (uint8_t i = 0; i < count; ++i) {
-                    if (idx >= input.size()) throw std::runtime_error("Corrupted .sz file: Truncated algorithm list");
+                    if (idx >= input.size()) throw std::runtime_error("Corrupted .sxz file: Truncated algorithm list");
                     pipeline.push_back(static_cast<AlgorithmType>(input[idx++]));
                 }
 
                 if (idx + 8 > input.size()) {
-                    throw std::runtime_error("Corrupted .sz file: Truncated block metadata");
+                    throw std::runtime_error("Corrupted .sxz file: Truncated block metadata");
                 }
 
                 uint32_t uncompressed_sz = 0;
@@ -404,7 +404,7 @@ public:
                 }
 
                 if (idx + compressed_sz > input.size()) {
-                    throw std::runtime_error("Corrupted .sz file: Truncated block payload");
+                    throw std::runtime_error("Corrupted .sxz file: Truncated block payload");
                 }
 
                 std::vector<uint8_t> payload(input.begin() + idx, input.begin() + idx + compressed_sz);
@@ -417,14 +417,14 @@ public:
             return output;
         }
 
-        throw std::runtime_error("Unsupported SZIP format version: " + std::to_string(ver));
+        throw std::runtime_error("Unsupported SXZP format version: " + std::to_string(ver));
     }
 
     static SzipFileInfo get_info(const std::vector<uint8_t>& input) {
         if (input.size() < 6 ||
             input[0] != MAGIC[0] || input[1] != MAGIC[1] ||
             input[2] != MAGIC[2] || input[3] != MAGIC[3]) {
-            throw std::runtime_error("Not a valid SZIP file");
+            throw std::runtime_error("Not a valid SXZP file");
         }
 
         SzipFileInfo info;
@@ -479,6 +479,6 @@ public:
     }
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_HEADER_HPP
+#endif // SXZP_HEADER_HPP

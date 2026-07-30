@@ -1,11 +1,11 @@
-#ifndef SZIP_BIT_STREAM_HPP
-#define SZIP_BIT_STREAM_HPP
+#ifndef SXZP_BIT_STREAM_HPP
+#define SXZP_BIT_STREAM_HPP
 
 #include <vector>
 #include <cstdint>
 #include <cstddef>
 
-namespace szip {
+namespace sxzip {
 
 class BitWriter {
 public:
@@ -43,6 +43,6 @@ private:
     uint8_t bit_pos_ = 0;
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_BIT_STREAM_HPP
+#endif // SXZP_BIT_STREAM_HPP

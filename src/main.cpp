@@ -1,4 +1,4 @@
-#include "szip_header.hpp"
+#include "sxzip_header.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -39,11 +39,11 @@ void write_file(const std::string& filepath, const std::vector<uint8_t>& data) {
 }
 
 void print_usage(const char* prog_name) {
-    std::cout << "Song-Zip (szip) v0.3 - Block-Based Adaptive Data Compressor\n"
+    std::cout << "Sxzip (szip) v0.3 - Block-Based Adaptive Data Compressor\n"
               << "Usage:\n"
-              << "  Compress:    " << prog_name << " -c <input> <output.sz> [options]\n"
-              << "  Decompress:  " << prog_name << " -d <input.sz> <output>\n"
-              << "  Info:        " << prog_name << " -i <input.sz>\n"
+              << "  Compress:    " << prog_name << " -c <input> <output.sxz> [options]\n"
+              << "  Decompress:  " << prog_name << " -d <input.sxz> <output>\n"
+              << "  Info:        " << prog_name << " -i <input.sxz>\n"
               << "  Evaluate:    " << prog_name << " -Ev <input>\n\n"
               << "Options:\n"
               << "  -a, --adaptive     Enable block-level adaptive algorithm selection (default)\n"
@@ -68,11 +68,11 @@ std::string format_size(size_t bytes) {
     return ss.str();
 }
 
-std::string pipeline_to_string(const std::vector<szip::AlgorithmType>& pipeline) {
+std::string pipeline_to_string(const std::vector<sxzip::AlgorithmType>& pipeline) {
     std::string result;
     for (size_t i = 0; i < pipeline.size(); ++i) {
         if (i > 0) result += " -> ";
-        result += szip::algorithm_to_string(pipeline[i]);
+        result += sxzip::algorithm_to_string(pipeline[i]);
     }
     return result;
 }
@@ -102,10 +102,10 @@ int main(int argc, char* argv[]) {
             std::string output_path = is_eval ? "" : argv[3];
 
             bool adaptive = true;
-            size_t block_size = szip::SzipEngine::DEFAULT_BLOCK_SIZE;
+            size_t block_size = sxzip::SxzipEngine::DEFAULT_BLOCK_SIZE;
             unsigned int threads = 0;
             size_t entropy_threshold = is_eval ? static_cast<size_t>(-3) : 200;
-            std::vector<szip::AlgorithmType> forced_pipeline;
+            std::vector<sxzip::AlgorithmType> forced_pipeline;
 
             int arg_start = is_eval ? 3 : 4;
             for (int i = arg_start; i < argc; ++i) {
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
                     adaptive = true;
                 } else if (arg == "--pipeline" || arg == "-p") {
                     if (i + 1 < argc) {
-                        forced_pipeline = szip::SzipEngine::parse_pipeline_str(argv[++i]);
+                        forced_pipeline = sxzip::SxzipEngine::parse_pipeline_str(argv[++i]);
                         adaptive = false;
                     }
                 } else if (arg == "--block-size" || arg == "-b") {
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
             bool silent_eval = is_eval;
             
             if (std::filesystem::is_directory(input_path)) {
-                if (!silent_eval) std::cout << "[szip] Directory detected! Packing with tar first...\n";
+                if (!silent_eval) std::cout << "[sxzip] Directory detected! Packing with tar first...\n";
                 actual_input_path = "szip_temp_dir.tar";
                 std::string cmd = "tar -cf " + actual_input_path + " " + input_path;
                 if (std::system(cmd.c_str()) != 0) {
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
                 is_temp_tar = true;
             }
 
-            if (!silent_eval) std::cout << "[szip] Reading " << actual_input_path << "...\n";
+            if (!silent_eval) std::cout << "[sxzip] Reading " << actual_input_path << "...\n";
             auto input_data = read_file(actual_input_path);
             
             if (is_temp_tar) {
@@ -174,19 +174,19 @@ int main(int argc, char* argv[]) {
                     if (entropy_threshold == static_cast<size_t>(-1)) sens_str = "AUTO (-E)";
                     else if (entropy_threshold == static_cast<size_t>(-2)) sens_str = "BRUTE-FORCE (-Ea)";
                     
-                    std::cout << "[szip Adaptive Engine] Compressing with Block-Based Auto-Tuning (Block Size: "
+                    std::cout << "[sxzip Adaptive Engine] Compressing with Block-Based Auto-Tuning (Block Size: "
                               << format_size(block_size) << ", Entropy Sensitivity: " << sens_str << ")...\n";
                 } else {
-                    std::cout << "[szip Pipeline Engine] Forcing pipeline chain: [" << pipeline_to_string(forced_pipeline) << "]\n";
+                    std::cout << "[sxzip Pipeline Engine] Forcing pipeline chain: [" << pipeline_to_string(forced_pipeline) << "]\n";
                 }
                 if (threads > 0) {
-                    std::cout << "[szip] Using " << threads << " threads for compression.\n";
+                    std::cout << "[sxzip] Using " << threads << " threads for compression.\n";
                 }
             }
 
             std::vector<uint8_t> compressed_data;
             if (entropy_threshold == static_cast<size_t>(-2) || silent_eval) {
-                if (!silent_eval) std::cout << "[szip Brute-Force] Sweeping entropy thresholds to find global optimum...\n";
+                if (!silent_eval) std::cout << "[sxzip Brute-Force] Sweeping entropy thresholds to find global optimum...\n";
                 std::vector<size_t> candidates = {0, 10, 30, 50, 100, 200, 500, 1000, 2000, 4096};
                 size_t best_size = std::numeric_limits<size_t>::max();
                 size_t best_thresh = 0;
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
 
                 for (size_t cand : candidates) {
                     bool inner_silent = true; // Always silence intermediate progress bars
-                    auto temp_data = szip::SzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent);
+                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent);
                     if (!silent_eval) std::cout << "  -> Threshold " << std::setw(4) << cand << " yields " << temp_data.size() << " bytes\n";
                     if (temp_data.size() < best_size) {
                         best_size = temp_data.size();
@@ -208,10 +208,10 @@ int main(int argc, char* argv[]) {
                     return 0; // Exit immediately without writing
                 }
                 
-                std::cout << "[szip Brute-Force] Optimal threshold found: " << best_thresh << " (" << best_size << " bytes)\n";
+                std::cout << "[sxzip Brute-Force] Optimal threshold found: " << best_thresh << " (" << best_size << " bytes)\n";
                 compressed_data = std::move(best_data);
             } else {
-                compressed_data = szip::SzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, entropy_threshold, silent_eval);
+                compressed_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, entropy_threshold, silent_eval);
             }
             
             auto end_time = std::chrono::high_resolution_clock::now();
@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
             double ratio = input_data.empty() ? 0.0 : (1.0 - (double)compressed_data.size() / input_data.size()) * 100.0;
 
-            std::cout << "[szip] Block Compression complete!\n"
+            std::cout << "[sxzip] Block Compression complete!\n"
                       << "----------------------------------------\n"
                       << "  Original Size:   " << format_size(input_data.size()) << " (" << input_data.size() << " bytes)\n"
                       << "  Compressed Size: " << format_size(compressed_data.size()) << " (" << compressed_data.size() << " bytes)\n"
@@ -237,18 +237,18 @@ int main(int argc, char* argv[]) {
             std::string input_path = argv[2];
             std::string output_path = argv[3];
 
-            std::cout << "[szip] Reading compressed file " << input_path << "...\n";
+            std::cout << "[sxzip] Reading compressed file " << input_path << "...\n";
             auto compressed_data = read_file(input_path);
 
             auto start_time = std::chrono::high_resolution_clock::now();
-            auto decompressed_data = szip::SzipEngine::decompress(compressed_data);
+            auto decompressed_data = sxzip::SxzipEngine::decompress(compressed_data);
             auto end_time = std::chrono::high_resolution_clock::now();
 
             write_file(output_path, decompressed_data);
 
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-            std::cout << "[szip] Decompression complete!\n"
+            std::cout << "[sxzip] Decompression complete!\n"
                       << "----------------------------------------\n"
                       << "  Output Size:     " << format_size(decompressed_data.size()) << " (" << decompressed_data.size() << " bytes)\n"
                       << "  Time Elapsed:    " << duration << " ms\n"
@@ -258,13 +258,13 @@ int main(int argc, char* argv[]) {
             if (decompressed_data.size() > 265) {
                 std::string magic(decompressed_data.begin() + 257, decompressed_data.begin() + 262);
                 if (magic == "ustar") {
-                    std::cout << "[szip] Auto-detect: Tar archive payload. Unpacking into current directory...\n";
+                    std::cout << "[sxzip] Auto-detect: Tar archive payload. Unpacking into current directory...\n";
                     std::string cmd = "tar -xf " + output_path;
                     if (std::system(cmd.c_str()) == 0) {
                         std::filesystem::remove(output_path); // Clean up intermediate tar file
-                        std::cout << "[szip] Unpacking complete! Temporary tarball removed.\n";
+                        std::cout << "[sxzip] Unpacking complete! Temporary tarball removed.\n";
                     } else {
-                        std::cerr << "[szip] Warning: Failed to extract tar archive.\n";
+                        std::cerr << "[sxzip] Warning: Failed to extract tar archive.\n";
                     }
                 }
             }
@@ -272,11 +272,11 @@ int main(int argc, char* argv[]) {
         } else if (flag == "-i" || flag == "--info") {
             std::string input_path = argv[2];
             auto compressed_data = read_file(input_path);
-            auto info = szip::SzipEngine::get_info(compressed_data);
+            auto info = sxzip::SxzipEngine::get_info(compressed_data);
 
-            std::cout << "[szip File Information]\n"
+            std::cout << "[sxzip File Information]\n"
                       << "----------------------------------------\n"
-                      << "  Format Magic:    SZIP\n"
+                      << "  Format Magic:    SXZP\n"
                       << "  Version:         v" << (int)info.version << "\n"
                       << "  Total Blocks:    " << info.blocks.size() << "\n"
                       << "  Compressed Size: " << format_size(info.total_compressed_size) << "\n";

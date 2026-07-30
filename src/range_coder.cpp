@@ -1,6 +1,6 @@
 #include "range_coder.hpp"
 
-namespace szip {
+namespace sxzip {
 
 // --- RangeEncoder ---
 
@@ -46,4 +46,4 @@ NeuralPredictor::NeuralPredictor() : c2_(4194304, 2048) {
 
 
 
-} // namespace szip
+} // namespace sxzip

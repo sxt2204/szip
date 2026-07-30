@@ -1,11 +1,11 @@
-#ifndef SZIP_ALGORITHM_BASE_HPP
-#define SZIP_ALGORITHM_BASE_HPP
+#ifndef SXZP_ALGORITHM_BASE_HPP
+#define SXZP_ALGORITHM_BASE_HPP
 
 #include <cstdint>
 #include <string>
 #include <vector>
 
-namespace szip {
+namespace sxzip {
 
 enum class AlgorithmType : uint8_t {
     NONE    = 0x00,
@@ -48,6 +48,6 @@ inline AlgorithmType string_to_algorithm(const std::string& str) {
     return AlgorithmType::NONE;
 }
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_ALGORITHM_BASE_HPP
+#endif // SXZP_ALGORITHM_BASE_HPP

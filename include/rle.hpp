@@ -1,12 +1,12 @@
-#ifndef SZIP_RLE_HPP
-#define SZIP_RLE_HPP
+#ifndef SXZP_RLE_HPP
+#define SXZP_RLE_HPP
 
 #include <vector>
 #include <cstdint>
 #include <cstddef>
 #include <stdexcept>
 
-namespace szip {
+namespace sxzip {
 
 class Rle {
 public:
@@ -14,6 +14,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_RLE_HPP
+#endif // SXZP_RLE_HPP

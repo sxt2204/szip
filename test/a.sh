@@ -3,7 +3,7 @@
 # Default to 100 files if no argument is provided
 NUM_FILES=${1:-100}
 TEST_DIR="testfile"
-ARCHIVE="testfile.sz"
+ARCHIVE="testfile.sxz"
 
 echo "[0/4] Compiling latest szip engine (Silent)..."
 make -C ../build -j4 > /dev/null 2>&1
@@ -45,7 +45,7 @@ for i in "${!MODES[@]}"; do
     
     # Run compression silently, capture time
     T1=$(python3 -c "import time; print(int(time.time() * 1000))")
-    ./szip -c "$TEST_DIR" "$ARCHIVE" $param > /dev/null 2>&1
+    ./sxzip -c "$TEST_DIR" "$ARCHIVE" $param > /dev/null 2>&1
     T2=$(python3 -c "import time; print(int(time.time() * 1000))")
     
     TIME_MS=$((T2 - T1))
@@ -66,7 +66,7 @@ echo ""
 echo "[3/4] Verifying extraction on last archive (-E)..."
 mkdir -p extracted_dir
 cd extracted_dir
-../szip -d "../$ARCHIVE" testfile_recovered > /dev/null 2>&1
+../sxzip -d "../$ARCHIVE" testfile_recovered > /dev/null 2>&1
 cd ..
 
 if diff -r "$TEST_DIR" "extracted_dir/testfile" > /dev/null 2>&1; then

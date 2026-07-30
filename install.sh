@@ -3,7 +3,7 @@
 # Szip Unix Installation Script (macOS / Linux)
 
 echo "========================================="
-echo " Szip Installation (macOS / Linux) "
+echo " Sxzip Installation (macOS / Linux) "
 echo "========================================="
 
 # 1. Ensure CMake is installed
@@ -13,7 +13,7 @@ if ! command -v cmake &> /dev/null; then
 fi
 
 # 2. Build the project
-echo "[1/3] Building Szip..."
+echo "[1/3] Building Sxzip..."
 rm -rf build
 mkdir build
 cd build
@@ -27,7 +27,7 @@ fi
 
 # 3. Install the binary and manual page
 echo ""
-echo "[2/3] Installing Szip to system directories..."
+echo "[2/3] Installing Sxzip to system directories..."
 echo "(You may be prompted for your password to copy files to /usr/local/bin and /usr/local/share/man)"
 sudo make install
 
@@ -40,7 +40,7 @@ fi
 echo ""
 echo "[3/3] ✅ Installation Complete!"
 echo "-----------------------------------------"
-echo "Szip is now installed globally."
-echo "Try running: szip -h"
-echo "To read the manual, run: man szip"
+echo "Sxzip is now installed globally."
+echo "Try running: sxzip -h"
+echo "To read the manual, run: man sxzip"
 echo "========================================="

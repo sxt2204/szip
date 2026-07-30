@@ -1,10 +1,10 @@
-#ifndef SZIP_RANGE_CODER_HPP
-#define SZIP_RANGE_CODER_HPP
+#ifndef SXZP_RANGE_CODER_HPP
+#define SXZP_RANGE_CODER_HPP
 
 #include <cstdint>
 #include <vector>
 
-namespace szip {
+namespace sxzip {
 
 class RangeEncoder {
 public:
@@ -129,6 +129,6 @@ private:
     uint32_t cxt2_ = 1;     // (Last 2 bytes << 8) | Partial byte context
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_RANGE_CODER_HPP
+#endif // SXZP_RANGE_CODER_HPP

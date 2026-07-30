@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstring>
 
-namespace szip {
+namespace sxzip {
 
 std::vector<uint8_t> Mtf::compress(const std::vector<uint8_t>& input) {
     if (input.empty()) return {};
@@ -53,4 +53,4 @@ std::vector<uint8_t> Mtf::decompress(const std::vector<uint8_t>& input) {
     return output;
 }
 
-} // namespace szip
+} // namespace sxzip

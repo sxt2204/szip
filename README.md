@@ -1,4 +1,4 @@
-# Szip (Song-Zip)
+# Szip (Sxzip)
 
 [English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
@@ -57,7 +57,7 @@ Simply run the installation script (requires `sudo` for `/usr/local/bin` access)
 ```
 After installation, you can access the comprehensive Unix manual page:
 ```bash
-man szip
+man sxzip
 ```
 
 ### Windows
@@ -73,10 +73,10 @@ This will automatically build `szip`, install it to `%USERPROFILE%\szip\bin`, an
 
 ```bash
 # Usage:
-#   Compress:    szip -c <input> <output.sz> [options]
-#   Decompress:  szip -d <input.sz> <output>
-#   Info:        szip -i <input.sz>
-#   Evaluate:    szip -Ev <input>
+#   Compress:    sxzip -c <input> <output.sxz> [options]
+#   Decompress:  sxzip -d <input.sxz> <output>
+#   Info:        sxzip -i <input.sxz>
+#   Evaluate:    sxzip -Ev <input>
 ```
 
 ### Quick Examples
@@ -84,25 +84,25 @@ This will automatically build `szip`, install it to `%USERPROFILE%\szip\bin`, an
 **1. Smart Adaptive Compression (Recommended)**
 Automatically analyzes entropy and utilizes multithreading:
 ```bash
-szip -c archive.tar archive.sz -E
+sxzip -c archive.tar archive.sxz -E
 ```
 
 **2. Maximize Compression (Brute-Force Optimal Threshold)**
 Sweep thresholds in memory to compress perfectly:
 ```bash
-szip -c dataset.bin dataset.sz -Ea
+sxzip -c dataset.bin dataset.sxz -Ea
 ```
 
 **3. Multistep Decompression**
 ```bash
-szip -d dataset.sz dataset_restored
+sxzip -d dataset.sxz dataset_restored
 ```
 
 **4. Scripting & Automation**
 Evaluate the best threshold without writing the file:
 ```bash
-BEST=$(szip -Ev firmware.bin)
-szip -c firmware.bin firmware.sz -e $BEST
+BEST=$(sxzip -Ev firmware.bin)
+sxzip -c firmware.bin firmware.sxz -e $BEST
 ```
 
 ---

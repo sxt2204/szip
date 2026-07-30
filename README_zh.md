@@ -1,4 +1,4 @@
-# Szip (Song-Zip)
+# Szip (Sxzip)
 
 [English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
@@ -57,7 +57,7 @@ cd szip
 ```
 安装完成后，你可以通过标准的 Unix 手册查阅高级文档：
 ```bash
-man szip
+man sxzip
 ```
 
 ### Windows
@@ -73,10 +73,10 @@ install.bat
 
 ```bash
 # 语法:
-#   压缩:    szip -c <输入> <输出.sz> [选项]
-#   解压:    szip -d <输入.sz> <输出>
-#   信息:    szip -i <输入.sz>
-#   估算:    szip -Ev <输入>
+#   压缩:    sxzip -c <输入> <输出.sxz> [选项]
+#   解压:    sxzip -d <输入.sxz> <输出>
+#   信息:    sxzip -i <输入.sxz>
+#   估算:    sxzip -Ev <输入>
 ```
 
 ### 快速上手示例
@@ -84,25 +84,25 @@ install.bat
 **1. 智能自适应压缩 (推荐)**
 全自动分析数据熵值，并启用多线程自适应区块压缩：
 ```bash
-szip -c archive.tar archive.sz -E
+sxzip -c archive.tar archive.sxz -E
 ```
 
 **2. 极限压缩 (暴力破解最优阈值)**
 在内存中扫掠参数，达到理论最高压缩比：
 ```bash
-szip -c dataset.bin dataset.sz -Ea
+sxzip -c dataset.bin dataset.sxz -Ea
 ```
 
 **3. 解压缩**
 ```bash
-szip -d dataset.sz dataset_restored
+sxzip -d dataset.sxz dataset_restored
 ```
 
 **4. 自动化脚本支持**
 在不写入文件的情况下估算最佳阈值：
 ```bash
-BEST=$(szip -Ev firmware.bin)
-szip -c firmware.bin firmware.sz -e $BEST
+BEST=$(sxzip -Ev firmware.bin)
+sxzip -c firmware.bin firmware.sxz -e $BEST
 ```
 
 ---

@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <cstring>
 
-namespace szip {
+namespace sxzip {
 
 namespace {
 
@@ -223,4 +223,4 @@ std::vector<uint8_t> Huffman::decompress(const std::vector<uint8_t>& input) {
     return output;
 }
 
-} // namespace szip
+} // namespace sxzip

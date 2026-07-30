@@ -1,11 +1,11 @@
-#ifndef SZIP_BWT_HPP
-#define SZIP_BWT_HPP
+#ifndef SXZP_BWT_HPP
+#define SXZP_BWT_HPP
 
 #include <vector>
 #include <cstdint>
 #include <cstddef>
 
-namespace szip {
+namespace sxzip {
 
 class Bwt {
 public:
@@ -15,6 +15,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_BWT_HPP
+#endif // SXZP_BWT_HPP

@@ -1,6 +1,6 @@
 #include "bit_stream.hpp"
 
-namespace szip {
+namespace sxzip {
 
 void BitWriter::write_bit(uint8_t bit) {
     flushed_ = false;
@@ -68,4 +68,4 @@ bool BitReader::has_more() const {
     return byte_idx_ < size_;
 }
 
-} // namespace szip
+} // namespace sxzip

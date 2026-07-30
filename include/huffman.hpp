@@ -1,5 +1,5 @@
-#ifndef SZIP_HUFFMAN_HPP
-#define SZIP_HUFFMAN_HPP
+#ifndef SXZP_HUFFMAN_HPP
+#define SXZP_HUFFMAN_HPP
 
 #include <vector>
 #include <cstdint>
@@ -7,7 +7,7 @@
 #include <array>
 #include <memory>
 
-namespace szip {
+namespace sxzip {
 
 class Huffman {
 public:
@@ -15,6 +15,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_HUFFMAN_HPP
+#endif // SXZP_HUFFMAN_HPP

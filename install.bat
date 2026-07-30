@@ -2,7 +2,7 @@
 setlocal EnableDelayedExpansion
 
 echo =========================================
-echo  Szip Installation (Windows)
+echo  Sxzip Installation (Windows)
 echo =========================================
 
 REM 1. Check for CMake
@@ -16,7 +16,7 @@ REM 2. Set install directory
 set "INSTALL_DIR=%USERPROFILE%\szip"
 set "BIN_DIR=%INSTALL_DIR%\bin"
 
-echo [1/3] Building Szip...
+echo [1/3] Building Sxzip...
 if exist build rmdir /s /q build
 mkdir build
 cd build
@@ -28,7 +28,7 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo [2/3] Installing Szip to %INSTALL_DIR%...
+echo [2/3] Installing Sxzip to %INSTALL_DIR%...
 cmake --install . --config Release
 if %errorlevel% neq 0 (
     echo [!] Installation failed.
@@ -46,6 +46,6 @@ echo =========================================
 echo [x] Installation Complete!
 echo Please restart your terminal (or open a new CMD/PowerShell window)
 echo so the new PATH variable takes effect.
-echo Then try running: szip -h
+echo Then try running: sxzip -h
 echo =========================================
 pause

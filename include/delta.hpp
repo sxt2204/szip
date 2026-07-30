@@ -1,10 +1,10 @@
-#ifndef SZIP_DELTA_HPP
-#define SZIP_DELTA_HPP
+#ifndef SXZP_DELTA_HPP
+#define SXZP_DELTA_HPP
 
 #include <vector>
 #include <cstdint>
 
-namespace szip {
+namespace sxzip {
 
 class Delta {
 public:
@@ -18,6 +18,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_DELTA_HPP
+#endif // SXZP_DELTA_HPP

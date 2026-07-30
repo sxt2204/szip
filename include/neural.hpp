@@ -1,11 +1,11 @@
-#ifndef SZIP_NEURAL_HPP
-#define SZIP_NEURAL_HPP
+#ifndef SXZP_NEURAL_HPP
+#define SXZP_NEURAL_HPP
 
 #include "algorithm_base.hpp"
 #include <vector>
 #include <cstdint>
 
-namespace szip {
+namespace sxzip {
 
 class Neural {
 public:
@@ -13,6 +13,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_NEURAL_HPP
+#endif // SXZP_NEURAL_HPP

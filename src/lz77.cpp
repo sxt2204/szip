@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace szip {
+namespace sxzip {
 
 static inline void encode_varint(std::vector<uint8_t>& out, size_t val) {
     do {
@@ -164,4 +164,4 @@ std::vector<uint8_t> Lz77::decompress(const std::vector<uint8_t>& input) {
     return output;
 }
 
-} // namespace szip
+} // namespace sxzip

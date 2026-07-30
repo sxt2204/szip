@@ -1,4 +1,4 @@
-# Szip (Song-Zip)
+# Szip (Sxzip)
 
 [English](README.md) | [简体中文](README_zh.md) | [日本語](README_ja.md)
 
@@ -57,7 +57,7 @@ cd szip
 ```
 インストール後、包括的な Unix マニュアルページにアクセスできます：
 ```bash
-man szip
+man sxzip
 ```
 
 ### Windows
@@ -73,10 +73,10 @@ install.bat
 
 ```bash
 # 使用法:
-#   圧縮:    szip -c <入力> <出力.sz> [オプション]
-#   解凍:    szip -d <入力.sz> <出力>
-#   情報:    szip -i <入力.sz>
-#   評価:    szip -Ev <入力>
+#   圧縮:    sxzip -c <入力> <出力.sxz> [オプション]
+#   解凍:    sxzip -d <入力.sxz> <出力>
+#   情報:    sxzip -i <入力.sxz>
+#   評価:    sxzip -Ev <入力>
 ```
 
 ### クイック例
@@ -84,25 +84,25 @@ install.bat
 **1. スマート適応圧縮 (推奨)**
 エントロピーを自動分析し、マルチスレッドを利用します：
 ```bash
-szip -c archive.tar archive.sz -E
+sxzip -c archive.tar archive.sxz -E
 ```
 
 **2. 圧縮の最大化 (ブルートフォース最適しきい値)**
 メモリ内のしきい値をスイープして完全に圧縮します：
 ```bash
-szip -c dataset.bin dataset.sz -Ea
+sxzip -c dataset.bin dataset.sxz -Ea
 ```
 
 **3. 解凍**
 ```bash
-szip -d dataset.sz dataset_restored
+sxzip -d dataset.sxz dataset_restored
 ```
 
 **4. スクリプトと自動化**
 ファイルを書き込まずに最適なしきい値を評価します：
 ```bash
-BEST=$(szip -Ev firmware.bin)
-szip -c firmware.bin firmware.sz -e $BEST
+BEST=$(sxzip -Ev firmware.bin)
+sxzip -c firmware.bin firmware.sxz -e $BEST
 ```
 
 ---

@@ -1,6 +1,6 @@
 #include "delta.hpp"
 
-namespace szip {
+namespace sxzip {
 
 std::vector<uint8_t> Delta::compress(const std::vector<uint8_t>& input) {
     if (input.empty()) return {};
@@ -46,4 +46,4 @@ std::vector<uint8_t> Delta4::decompress(const std::vector<uint8_t>& input) {
     return output;
 }
 
-} // namespace szip
+} // namespace sxzip

@@ -1,11 +1,11 @@
-#ifndef SZIP_LZ77_HPP
-#define SZIP_LZ77_HPP
+#ifndef SXZP_LZ77_HPP
+#define SXZP_LZ77_HPP
 
 #include <vector>
 #include <cstdint>
 #include <cstddef>
 
-namespace szip {
+namespace sxzip {
 
 class Lz77 {
 public:
@@ -15,6 +15,6 @@ public:
     static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input);
 };
 
-} // namespace szip
+} // namespace sxzip
 
-#endif // SZIP_LZ77_HPP
+#endif // SXZP_LZ77_HPP

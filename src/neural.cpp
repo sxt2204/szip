@@ -2,7 +2,7 @@
 #include "range_coder.hpp"
 #include <stdexcept>
 
-namespace szip {
+namespace sxzip {
 
 std::vector<uint8_t> Neural::compress(const std::vector<uint8_t>& input) {
     if (input.empty()) return {};
@@ -63,4 +63,4 @@ std::vector<uint8_t> Neural::decompress(const std::vector<uint8_t>& input) {
     return out;
 }
 
-} // namespace szip
+} // namespace sxzip
