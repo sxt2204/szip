@@ -43,6 +43,9 @@ Enable dynamic entropy auto-tuning based on exponential variance. The compressor
 \fB\-Ea, \-\-brute\-force\fR
 Sweep a comprehensive range of entropy thresholds in memory to locate the absolute global optimum for the file's chunking strategy, ensuring maximum possible compression ratio.
 .TP
+\fB\-He\fR
+High-Entropy Fracture. Force the chunking algorithm to slice the data into extremely tiny blocks (e.g., 256 bytes). This is an experimental method that attempts to reduce local entropy for highly random or encrypted data, potentially at the cost of higher overhead.
+.TP
 \fB\-t, \-\-threads\fR \fINUM\fR
 Number of threads to use. By default (0), it automatically scales to the number of logical cores.
 .SH EXAMPLES

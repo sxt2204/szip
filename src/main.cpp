@@ -54,6 +54,7 @@ void print_usage(const char* prog_name) {
               << "  -e, --entropy      Entropy-boundary sensitivity for block chunking (default: 200)\n"
               << "  -E, --auto-entropy Enable dynamic entropy auto-tuning based on variance\n"
               << "  -Ea, --brute-force Brute-force search for the optimal entropy threshold\n"
+              << "  -He                High-Entropy Fracture (force extremely tiny 256B blocks)\n"
               << "  -t, --threads      Number of threads to use (default: 0 = auto)\n\n"
               << "Pipeline string format:\n"
               << "  e.g., 'LZ77,HUFFMAN' or 'BWT,MTF,RLE,NEURAL'\n";
@@ -109,6 +110,7 @@ int sxzip_cli(int argc, char* argv[]) {
             size_t block_size = sxzip::SxzipEngine::DEFAULT_BLOCK_SIZE;
             unsigned int threads = 0;
             size_t entropy_threshold = is_eval ? static_cast<size_t>(-3) : 200;
+            bool high_entropy_fracture = false;
             std::vector<sxzip::AlgorithmType> forced_pipeline;
 
             int arg_start = is_eval ? 3 : 4;
@@ -116,6 +118,8 @@ int sxzip_cli(int argc, char* argv[]) {
                 std::string arg = argv[i];
                 if (arg == "--adaptive" || arg == "-a") {
                     adaptive = true;
+                } else if (arg == "-He") {
+                    high_entropy_fracture = true;
                 } else if (arg == "--pipeline" || arg == "-p") {
                     if (i + 1 < argc) {
                         forced_pipeline = sxzip::SxzipEngine::parse_pipeline_str(argv[++i]);
@@ -199,7 +203,7 @@ int sxzip_cli(int argc, char* argv[]) {
                 std::vector<std::pair<size_t, size_t>> results;
                 for (size_t cand : candidates) {
                     bool inner_silent = true; // Always silence intermediate progress bars
-                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent);
+                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent, high_entropy_fracture);
                     if (!silent_eval) std::cout << "  -> Threshold " << std::setw(4) << cand << " yields " << temp_data.size() << " bytes\n";
                     results.push_back({cand, temp_data.size()});
                     if (temp_data.size() < best_size) {
@@ -225,7 +229,7 @@ int sxzip_cli(int argc, char* argv[]) {
                 std::cout << "[sxzip Brute-Force] Optimal threshold found: " << best_thresh << " (" << best_size << " bytes)\n";
                 compressed_data = std::move(best_data);
             } else {
-                compressed_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, entropy_threshold, silent_eval);
+                compressed_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, entropy_threshold, silent_eval, high_entropy_fracture);
             }
             
             auto end_time = std::chrono::high_resolution_clock::now();

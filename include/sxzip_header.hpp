@@ -177,7 +177,8 @@ public:
                                          size_t block_size = DEFAULT_BLOCK_SIZE,
                                          unsigned int threads = 0,
                                          size_t entropy_threshold = 200,
-                                         bool silent_progress = false) {
+                                         bool silent_progress = false,
+                                         bool high_entropy_fracture = false) {
         std::vector<uint8_t> output;
 
         if (block_size == 0) {
@@ -199,7 +200,14 @@ public:
         if (n == 0) {
             blocks.push_back({});
         } else {
-            if (adaptive) {
+            if (high_entropy_fracture) {
+                size_t HE_BLOCK_SIZE = 256; // extremely tiny chunks
+                while (offset < n) {
+                    size_t sz = std::min(HE_BLOCK_SIZE, n - offset);
+                    blocks.push_back(std::vector<uint8_t>(input.begin() + offset, input.begin() + offset + sz));
+                    offset += sz;
+                }
+            } else if (adaptive) {
                 // Bottom-Up Irregular Micro-Block Merge (Content-Defined Chunking)
                 size_t MICRO_BLOCK_SIZE = 4096;
                 std::vector<AlgorithmType> current_pipeline;
