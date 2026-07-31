@@ -1,19 +1,19 @@
 .TH sxzip 1 "July 2026" "sxzip 1.0.0" "User Commands"
 .SH NAME
-\fBszip\fR \- Advanced adaptive multi-stage compressor with neural modeling
+\fBsxzip\fR \- Advanced adaptive multi-stage compressor with neural modeling
 .SH SYNOPSIS
-\fBszip\fR \-c \fIinput\fR \fIoutput.sxz\fR [\fIoptions\fR]
+\fBsxzip\fR \-c \fIinput\fR \fIoutput.sxz\fR [\fIoptions\fR]
 .br
-\fBszip\fR \-d \fIinput.sxz\fR \fIoutput\fR
+\fBsxzip\fR \-d \fIinput.sxz\fR \fIoutput\fR
 .br
-\fBszip\fR \-i \fIinput.sxz\fR
+\fBsxzip\fR \-i \fIinput.sxz\fR
 .br
-\fBszip\fR \-Ev \fIinput\fR
+\fBsxzip\fR \-Ev \fIinput\fR
 .SH DESCRIPTION
-\fBszip\fR is an extremely powerful, adaptive compressor designed to squeeze out maximum redundancy by employing a dynamic combination of algorithms. 
-Unlike static compressors like gzip or xz, \fBszip\fR automatically chunks the input data into independent blocks using entropy variance (Content-Defined Chunking), and evaluates multiple algorithmic pipelines (BWT, RLE, MTF, LZ77, Neural Arithmetic Coding) on the fly to select the globally optimal compression chain for each specific block.
+\fBsxzip\fR is an extremely powerful, adaptive compressor designed to squeeze out maximum redundancy by employing a dynamic combination of algorithms. 
+Unlike static compressors like gzip or xz, \fBsxzip\fR automatically chunks the input data into independent blocks using entropy variance (Content-Defined Chunking), and evaluates multiple algorithmic pipelines (BWT, RLE, MTF, LZ77, Neural Arithmetic Coding) on the fly to select the globally optimal compression chain for each specific block.
 .PP
-If a directory is provided as input, \fBszip\fR will automatically package it using \fBtar\fR prior to compression, and seamlessly extract it upon decompression.
+If a directory is provided as input, \fBsxzip\fR will automatically package it using \fBtar\fR prior to compression, and seamlessly extract it upon decompression.
 .SH OPTIONS
 .TP
 \fB\-c, \-\-compress\fR \fIinput\fR \fIoutput.sxz\fR

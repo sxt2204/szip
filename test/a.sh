@@ -51,7 +51,7 @@ for i in "${!MODES[@]}"; do
     TIME_MS=$((T2 - T1))
     
     # Get compressed size
-    COMP_SIZE_BYTES=$(stat -f%z "$ARCHIVE")
+    COMP_SIZE_BYTES=$(python3 -c "import os; print(os.path.getsize('$ARCHIVE'))")
     COMP_SIZE_KB=$(echo "scale=2; $COMP_SIZE_BYTES / 1024" | bc)
     
     # Calculate ratio

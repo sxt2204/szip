@@ -192,10 +192,12 @@ int main(int argc, char* argv[]) {
                 size_t best_thresh = 0;
                 std::vector<uint8_t> best_data;
 
+                std::vector<std::pair<size_t, size_t>> results;
                 for (size_t cand : candidates) {
                     bool inner_silent = true; // Always silence intermediate progress bars
                     auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent);
                     if (!silent_eval) std::cout << "  -> Threshold " << std::setw(4) << cand << " yields " << temp_data.size() << " bytes\n";
+                    results.push_back({cand, temp_data.size()});
                     if (temp_data.size() < best_size) {
                         best_size = temp_data.size();
                         best_data = std::move(temp_data);
@@ -204,8 +206,16 @@ int main(int argc, char* argv[]) {
                 }
                 
                 if (silent_eval) {
-                    std::cout << best_thresh << std::endl;
-                    return 0; // Exit immediately without writing
+                    bool first = true;
+                    for (const auto& r : results) {
+                        if (r.second <= best_size * 1.01) { // within 1% of the best size
+                            if (!first) std::cout << " ";
+                            std::cout << r.first;
+                            first = false;
+                        }
+                    }
+                    std::cout << std::endl;
+                    return 0;
                 }
                 
                 std::cout << "[sxzip Brute-Force] Optimal threshold found: " << best_thresh << " (" << best_size << " bytes)\n";

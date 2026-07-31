@@ -21,11 +21,11 @@ jobs:
     - name: Configure CMake
       run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build Szip
+    - name: Build Sxzip
       run: cmake --build build --config Release -j 4
 
     - name: Copy executable for testing
-      run: cp build/szip test/szip
+      run: cp build/sxzip test/sxzip
 
     - name: Run Szip Core Benchmark & Integrity Test
       working-directory: test
@@ -44,5 +44,5 @@ jobs:
     - name: Configure CMake
       run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build Szip (MSVC)
+    - name: Build Sxzip (MSVC)
       run: cmake --build build --config Release -j 4
