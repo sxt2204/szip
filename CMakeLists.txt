@@ -8,6 +8,7 @@ include_directories(include)
 
 add_executable(sxzip
     src/main.cpp
+    src/tui.cpp
     src/bit_stream.cpp
     src/delta.cpp
     src/mtf.cpp

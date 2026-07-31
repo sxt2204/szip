@@ -1,4 +1,5 @@
 #include "sxzip_header.hpp"
+#include "tui.hpp"
 #include <iostream>
 #include <fstream> // IWYU pragma: keep
 #include <string>
@@ -44,7 +45,8 @@ void print_usage(const char* prog_name) {
               << "  Compress:    " << prog_name << " -c <input> <output.sxz> [options]\n"
               << "  Decompress:  " << prog_name << " -d <input.sxz> <output>\n"
               << "  Info:        " << prog_name << " -i <input.sxz>\n"
-              << "  Evaluate:    " << prog_name << " -Ev <input>\n\n"
+              << "  Evaluate:    " << prog_name << " -Ev <input>\n"
+              << "  Interactive: " << prog_name << " (run without arguments)\n\n"
               << "Options:\n"
               << "  -a, --adaptive     Enable block-level adaptive algorithm selection (default)\n"
               << "  -b, --block-size   Maximum block size limit in KB (default: 16384KB = 16MB)\n"
@@ -52,7 +54,9 @@ void print_usage(const char* prog_name) {
               << "  -e, --entropy      Entropy-boundary sensitivity for block chunking (default: 200)\n"
               << "  -E, --auto-entropy Enable dynamic entropy auto-tuning based on variance\n"
               << "  -Ea, --brute-force Brute-force search for the optimal entropy threshold\n"
-              << "  -t, --threads      Number of threads to use (default: 0 = auto)\n";
+              << "  -t, --threads      Number of threads to use (default: 0 = auto)\n\n"
+              << "Pipeline string format:\n"
+              << "  e.g., 'LZ77,HUFFMAN' or 'BWT,MTF,RLE,NEURAL'\n";
 }
 
 std::string format_size(size_t bytes) {
@@ -79,7 +83,7 @@ std::string pipeline_to_string(const std::vector<sxzip::AlgorithmType>& pipeline
 
 } // anonymous namespace
 
-int main(int argc, char* argv[]) {
+int sxzip_cli(int argc, char* argv[]) {
     if (argc < 3) {
         print_usage(argv[0]);
         return 1;
@@ -302,13 +306,42 @@ int main(int argc, char* argv[]) {
             }
             std::cout << "----------------------------------------\n";
         } else {
+            std::cerr << "Unknown option: " << flag << "\n";
             print_usage(argv[0]);
             return 1;
         }
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << "\n";
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
 
     return 0;
+}
+
+namespace sxzip {
+namespace tui {
+
+int execute_cli(const std::vector<std::string>& args) {
+    std::vector<char*> argv;
+    for (size_t i = 0; i < args.size(); ++i) {
+        argv.push_back(const_cast<char*>(args[i].c_str()));
+    }
+    // We catch exceptions to prevent the TUI from crashing due to CLI errors
+    try {
+        return sxzip_cli(static_cast<int>(argv.size()), argv.data());
+    } catch (const std::exception& e) {
+        std::cerr << "Error executing command: " << e.what() << std::endl;
+        return 1;
+    }
+}
+
+} // namespace tui
+} // namespace sxzip
+
+int main(int argc, char* argv[]) {
+    if (argc == 1) {
+        return sxzip::tui::run();
+    } else {
+        return sxzip_cli(argc, argv);
+    }
 }
