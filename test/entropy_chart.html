@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>局部香农熵分布图 (CDC 探测器模拟)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chart-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 900px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chart-container">
+    <h2>混合文件局部香农熵扫描图 (文件偏移量 vs 熵值)</h2>
+    <p class="subtitle">模拟滑动窗口 (Sliding Window) 下的连续探测结果</p>
+    <canvas id="entropyChart"></canvas>
+</div>
+
+<script>
+    const ctx = document.getElementById('entropyChart').getContext('2d');
+    
+    // 模拟数据：A段 (100字节, 极低熵) -> B段 (10字节, 极高熵) -> C段 (200字节, 极低熵)
+    const labels = [];
+    const data = [];
+    const windowSize = 5;
+    
+    // 生成 A 段 (偏移量 0 - 100)
+    for (let i = 0; i <= 100; i += 2) {
+        labels.push(`${i}B`);
+        // 极低熵，存在微小波动
+        data.push(0.0 + Math.random() * 0.1);
+    }
+    
+    // 生成 B 段 (偏移量 100 - 110)
+    for (let i = 102; i <= 110; i += 2) {
+        labels.push(`${i}B`);
+        // 突变到极高熵 (理论极限 8 bits/byte)
+        data.push(7.5 + Math.random() * 0.5);
+    }
+    
+    // 生成 C 段 (偏移量 110 - 310)
+    for (let i = 112; i <= 310; i += 5) {
+        labels.push(`${i}B`);
+        // 跌回极低熵
+        data.push(0.0 + Math.random() * 0.1);
+    }
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '局部香农熵 (bits/byte)',
+                data: data,
+                borderColor: '#e74c3c',
+                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                borderWidth: 2,
+                pointRadius: 2,
+                pointBackgroundColor: '#e74c3c',
+                fill: true,
+                tension: 0.1, // 曲线平滑度
+                stepped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 8.5,
+                    title: {
+                        display: true,
+                        text: '香农熵 (Shannon Entropy)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: '文件偏移量 (File Offset)'
+                    }
+                }
+            },
+            plugins: {
+                annotation: {
+                    annotations: {
+                        line1: {
+                            type: 'line',
+                            yMin: 0,
+                            yMax: 8,
+                            xMin: '100B',
+                            xMax: '100B',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

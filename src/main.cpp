@@ -212,6 +212,32 @@ int sxzip_cli(int argc, char* argv[]) {
                         best_thresh = cand;
                     }
                 }
+
+                // Secondary fine-tuning sweep
+                if (!silent_eval) std::cout << "[sxzip Brute-Force] Fine-tuning around optimal threshold " << best_thresh << "...\n";
+                
+                size_t step = std::max(static_cast<size_t>(4), best_thresh / 4);
+                std::vector<size_t> fine_candidates;
+                if (best_thresh >= step) fine_candidates.push_back(best_thresh - step);
+                if (best_thresh >= step / 2) fine_candidates.push_back(best_thresh - step / 2);
+                fine_candidates.push_back(best_thresh + step / 2);
+                fine_candidates.push_back(best_thresh + step);
+
+                for (size_t cand : fine_candidates) {
+                    bool already_tested = false;
+                    for (auto c : candidates) { if (c == cand) already_tested = true; }
+                    if (already_tested) continue;
+
+                    bool inner_silent = true;
+                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent, high_entropy_fracture);
+                    if (!silent_eval) std::cout << "  ~> Fine-tune " << std::setw(4) << cand << " yields " << temp_data.size() << " bytes\n";
+                    results.push_back({cand, temp_data.size()});
+                    if (temp_data.size() < best_size) {
+                        best_size = temp_data.size();
+                        best_data = std::move(temp_data);
+                        best_thresh = cand;
+                    }
+                }
                 
                 if (silent_eval) {
                     bool first = true;
