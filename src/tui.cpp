@@ -102,6 +102,7 @@ int run() {
 
             std::string input_path;
             std::string output_path;
+            std::string password;
 
             if (selected == 0) {
                 std::cout << "\033[1;36m[Compress Mode]\033[0m\n";
@@ -111,8 +112,14 @@ int run() {
                 std::cout << "Enter output path (default: " << input_path << ".sxz): ";
                 std::getline(std::cin, output_path);
                 if (output_path.empty()) output_path = input_path + ".sxz";
+                std::cout << "Enter password (leave empty for none): ";
+                std::getline(std::cin, password);
                 
                 std::vector<std::string> args = {"sxzip", "-c", input_path, output_path};
+                if (!password.empty()) {
+                    args.push_back("-P");
+                    args.push_back(password);
+                }
                 execute_cli(args);
             } else if (selected == 1) {
                 std::cout << "\033[1;36m[Decompress Mode]\033[0m\n";
@@ -122,8 +129,14 @@ int run() {
                 std::cout << "Enter output path: ";
                 std::getline(std::cin, output_path);
                 if (output_path.empty()) continue;
+                std::cout << "Enter password (if any): ";
+                std::getline(std::cin, password);
 
                 std::vector<std::string> args = {"sxzip", "-d", input_path, output_path};
+                if (!password.empty()) {
+                    args.push_back("-P");
+                    args.push_back(password);
+                }
                 execute_cli(args);
             } else if (selected == 2) {
                 std::cout << "\033[1;36m[Info Mode]\033[0m\n";

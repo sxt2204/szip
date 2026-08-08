@@ -8,6 +8,8 @@
 #include "mtf.hpp"
 #include "rle.hpp"
 #include "huffman.hpp"
+#include "range_coder.hpp"
+#include "crypto.hpp"
 #include "neural.hpp"
 #include <vector>
 #include <cstdint>
@@ -15,10 +17,10 @@
 #include <stdexcept>
 #include <string>
 #include <algorithm>
-#include <cctype>
 #include <iostream>
 #include <future>
 #include <thread>
+#include <chrono>
 
 namespace sxzip {
 
@@ -38,8 +40,8 @@ struct SzipFileInfo {
 
 class SxzipEngine {
 public:
-    static constexpr uint8_t MAGIC[4] = {'S', 'Z', 'I', 'P'};
-    static constexpr uint8_t VERSION = 0x05;
+    static constexpr uint8_t MAGIC[4] = {'S', 'X', 'Z', 'P'};
+    static constexpr uint8_t VERSION = 0x06;
     static constexpr size_t DEFAULT_BLOCK_SIZE = 16777216; // 16MB default maximum block size
 
     static std::vector<AlgorithmType> parse_pipeline_str(const std::string& str) {
@@ -178,21 +180,33 @@ public:
                                          unsigned int threads = 0,
                                          size_t entropy_threshold = 200,
                                          bool silent_progress = false,
-                                         bool high_entropy_fracture = false) {
+                                         bool high_entropy_fracture = false,
+                                         const std::string& password = "") {
         std::vector<uint8_t> output;
 
         if (block_size == 0) {
             throw std::runtime_error("Invalid block size: 0");
         }
 
-        // 1. Write Header: MAGIC (4B) + VERSION (1B 0x03)
         output.push_back(MAGIC[0]);
         output.push_back(MAGIC[1]);
         output.push_back(MAGIC[2]);
         output.push_back(MAGIC[3]);
         output.push_back(VERSION);
 
-        // Partition input into blocks
+        bool encrypt = !password.empty();
+        output.push_back(encrypt ? 0x01 : 0x00); // FLAGS byte
+
+        uint64_t salt = 0;
+        if (encrypt) {
+            salt = static_cast<uint64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+            for (int k = 0; k < 8; ++k) {
+                output.push_back(static_cast<uint8_t>((salt >> (k * 8)) & 0xFF));
+            }
+        }
+        
+        size_t data_start_offset = output.size();
+
         size_t n = input.size();
         size_t offset = 0;
         std::vector<std::vector<uint8_t>> blocks;
@@ -201,14 +215,13 @@ public:
             blocks.push_back({});
         } else {
             if (high_entropy_fracture) {
-                size_t HE_BLOCK_SIZE = 256; // extremely tiny chunks
+                size_t HE_BLOCK_SIZE = 256; 
                 while (offset < n) {
                     size_t sz = std::min(HE_BLOCK_SIZE, n - offset);
                     blocks.push_back(std::vector<uint8_t>(input.begin() + offset, input.begin() + offset + sz));
                     offset += sz;
                 }
             } else if (adaptive) {
-                // Bottom-Up Irregular Micro-Block Merge (Content-Defined Chunking)
                 size_t MICRO_BLOCK_SIZE = 4096;
                 std::vector<AlgorithmType> current_pipeline;
                 size_t current_entropy = 0;
@@ -223,28 +236,25 @@ public:
                     if (offset == current_block_start) {
                         current_pipeline = probe.pipeline;
                         current_entropy = probe.max_freq;
-                        current_variance = 50; // Initial guess
+                        current_variance = 50;
                     } else {
                         bool pipeline_changed = (probe.pipeline != current_pipeline);
                         int diff = std::abs(static_cast<int>(probe.max_freq) - static_cast<int>(current_entropy));
                         
                         size_t effective_threshold = entropy_threshold;
                         if (entropy_threshold == static_cast<size_t>(-1)) {
-                            // Auto-Tuning (-E): Threshold scales with the data's inherent variance
                             effective_threshold = std::max(static_cast<size_t>(30), current_variance * 3);
                         }
                         
                         bool entropy_shifted = (diff > static_cast<int>(effective_threshold));
                         
                         if (pipeline_changed || entropy_shifted || (offset - current_block_start + micro_sz > block_size)) {
-                            // Pipeline intent changed, entropy mutated violently, or block size exceeded -> flush irregular block
                             blocks.push_back(std::vector<uint8_t>(input.begin() + current_block_start, input.begin() + offset));
                             current_block_start = offset;
                             current_pipeline = probe.pipeline;
                             current_entropy = probe.max_freq;
                             current_variance = 50;
                         } else {
-                            // Smoothly roll the entropy average and variance to adapt to gradual changes
                             current_entropy = (current_entropy * 7 + probe.max_freq) / 8;
                             current_variance = (current_variance * 7 + diff) / 8;
                         }
@@ -255,7 +265,6 @@ public:
                     blocks.push_back(std::vector<uint8_t>(input.begin() + current_block_start, input.end()));
                 }
             } else {
-                // Fallback fixed slicing for forced pipelines
                 while (offset < n) {
                     size_t sz = std::min(block_size, n - offset);
                     blocks.push_back(std::vector<uint8_t>(input.begin() + offset, input.begin() + offset + sz));
@@ -265,12 +274,10 @@ public:
         }
 
         uint32_t num_blocks = static_cast<uint32_t>(blocks.size());
-        // Write num_blocks (4 bytes)
         for (int i = 0; i < 4; ++i) {
             output.push_back(static_cast<uint8_t>((num_blocks >> (i * 8)) & 0xFF));
         }
 
-        // Process blocks in parallel batches
         unsigned int max_threads = threads > 0 ? threads : std::thread::hardware_concurrency();
         if (max_threads == 0) max_threads = 4;
 
@@ -285,7 +292,6 @@ public:
             size_t end_idx = std::min(i + max_threads, total_blocks);
             std::vector<std::future<BlockResult>> futures;
 
-            // Launch tasks
             for (size_t j = i; j < end_idx; ++j) {
                 futures.push_back(std::async(std::launch::async, [&blocks, j, &user_pipeline, adaptive]() {
                     std::vector<AlgorithmType> pipeline = user_pipeline;
@@ -294,7 +300,6 @@ public:
                     }
                     auto payload = compress_single_block(blocks[j], pipeline);
                     
-                    // Fallback to STORE if compression inflated the data
                     if (payload.size() >= blocks[j].size()) {
                         pipeline = {AlgorithmType::STORE};
                         payload = blocks[j];
@@ -304,11 +309,9 @@ public:
                 }));
             }
 
-            // Collect results in order
             for (auto& fut : futures) {
                 BlockResult res = fut.get();
                 
-                // Block header
                 uint8_t count = static_cast<uint8_t>(res.pipeline.size());
                 output.push_back(count);
                 for (AlgorithmType algo : res.pipeline) {
@@ -328,7 +331,6 @@ public:
                 output.insert(output.end(), res.payload.begin(), res.payload.end());
             }
 
-            // Print progress bar
             if (!silent_progress) {
                 int progress = static_cast<int>((static_cast<float>(end_idx) / total_blocks) * 100);
                 std::cerr << "\r[sxzip] Compressing... [";
@@ -342,28 +344,34 @@ public:
         }
         if (!silent_progress) std::cerr << std::endl;
 
+        if (encrypt) {
+            crypto::StreamCipher cipher(password, salt);
+            std::vector<uint8_t> payload_data(output.begin() + data_start_offset, output.end());
+            cipher.process(payload_data);
+            std::copy(payload_data.begin(), payload_data.end(), output.begin() + data_start_offset);
+        }
+
         return output;
     }
 
-    static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input) {
+    static std::vector<uint8_t> decompress(const std::vector<uint8_t>& input, const std::string& password = "") {
         if (input.size() < 6) {
             throw std::runtime_error("Invalid .sxz file: Header too small");
         }
 
-        // Validate Magic
         if (input[0] != MAGIC[0] || input[1] != MAGIC[1] || input[2] != MAGIC[2] || input[3] != MAGIC[3]) {
-            throw std::runtime_error("Invalid .sxz file: Magic header mismatch (expected SXZP)");
+            throw std::runtime_error("Invalid .sxz file: Magic header mismatch");
         }
 
         uint8_t ver = input[4];
-        if (ver == 0x01) { // Fallback v0.1 format
+        if (ver == 0x01) { 
             uint8_t mode = input[5];
             std::vector<AlgorithmType> pipeline = {AlgorithmType::RLE, AlgorithmType::HUFFMAN};
             if (mode == 0x01) pipeline = {AlgorithmType::HUFFMAN};
             else if (mode == 0x02) pipeline = {AlgorithmType::RLE};
             std::vector<uint8_t> payload(input.begin() + 6, input.end());
             return decompress_single_block(payload, pipeline);
-        } else if (ver == 0x02) { // Fallback v0.2 format
+        } else if (ver == 0x02) {
             uint8_t count = input[5];
             std::vector<AlgorithmType> pipeline;
             for (uint8_t i = 0; i < count; ++i) {
@@ -371,51 +379,71 @@ public:
             }
             std::vector<uint8_t> payload(input.begin() + 6 + count, input.end());
             return decompress_single_block(payload, pipeline);
-        } else if (ver >= 0x03 && ver <= 0x05) { // v0.3 to v0.5 Block-Based Adaptive format
-            if (input.size() < 9) {
-                throw std::runtime_error("Invalid .sxz file: Truncated v0.3 header");
+        } else if (ver >= 0x03 && ver <= 0x06) {
+            size_t idx = 5;
+            
+            bool is_encrypted = false;
+            uint64_t salt = 0;
+            if (ver == 0x06) {
+                if (idx >= input.size()) throw std::runtime_error("Invalid .sxz v0.6 format: Missing flags");
+                is_encrypted = (input[idx++] == 0x01);
+                if (is_encrypted) {
+                    if (idx + 8 > input.size()) throw std::runtime_error("Invalid .sxz v0.6 format: Missing salt");
+                    for (int k = 0; k < 8; ++k) {
+                        salt |= (static_cast<uint64_t>(input[idx++]) << (k * 8));
+                    }
+                }
             }
 
-            uint32_t num_blocks = 0;
+            if (is_encrypted && password.empty()) {
+                throw std::runtime_error("PasswordRequiredException: This archive is encrypted and requires a password.");
+            }
+
+            std::vector<uint8_t> working_input = input;
+            if (is_encrypted) {
+                crypto::StreamCipher cipher(password, salt);
+                std::vector<uint8_t> payload_data(working_input.begin() + idx, working_input.end());
+                cipher.process(payload_data);
+                std::copy(payload_data.begin(), payload_data.end(), working_input.begin() + idx);
+            }
+
+            if (idx + 4 > working_input.size()) {
+                throw std::runtime_error("Invalid .sxz file: Missing total block count");
+            }
+            uint32_t total_blocks = 0;
             for (int i = 0; i < 4; ++i) {
-                num_blocks |= (static_cast<uint32_t>(input[5 + i]) << (i * 8));
+                total_blocks |= (static_cast<uint32_t>(working_input[idx++]) << (i * 8));
             }
 
-            size_t idx = 9;
             std::vector<uint8_t> output;
-
-            for (uint32_t b = 0; b < num_blocks; ++b) {
-                if (idx >= input.size()) {
-                    throw std::runtime_error("Corrupted .sxz file: Truncated block header");
-                }
-
-                uint8_t count = input[idx++];
+            for (uint32_t block_idx = 0; block_idx < total_blocks; ++block_idx) {
+                if (idx + 1 > working_input.size()) throw std::runtime_error("Invalid block header: Missing pipeline count");
+                uint8_t algo_count = working_input[idx++];
+                
                 std::vector<AlgorithmType> pipeline;
-                for (uint8_t i = 0; i < count; ++i) {
-                    if (idx >= input.size()) throw std::runtime_error("Corrupted .sxz file: Truncated algorithm list");
-                    pipeline.push_back(static_cast<AlgorithmType>(input[idx++]));
+                if (idx + algo_count > working_input.size()) throw std::runtime_error("Invalid block header: Truncated pipeline");
+                for (uint8_t i = 0; i < algo_count; ++i) {
+                    pipeline.push_back(static_cast<AlgorithmType>(working_input[idx++]));
                 }
 
-                if (idx + 8 > input.size()) {
-                    throw std::runtime_error("Corrupted .sxz file: Truncated block metadata");
-                }
-
+                if (idx + 4 > working_input.size()) throw std::runtime_error("Invalid block header: Missing uncompressed size");
                 uint32_t uncompressed_sz = 0;
                 for (int i = 0; i < 4; ++i) {
-                    uncompressed_sz |= (static_cast<uint32_t>(input[idx++]) << (i * 8));
+                    uncompressed_sz |= (static_cast<uint32_t>(working_input[idx++]) << (i * 8));
                 }
                 (void)uncompressed_sz;
 
+                if (idx + 4 > working_input.size()) throw std::runtime_error("Invalid block header: Missing compressed size");
                 uint32_t compressed_sz = 0;
                 for (int i = 0; i < 4; ++i) {
-                    compressed_sz |= (static_cast<uint32_t>(input[idx++]) << (i * 8));
+                    compressed_sz |= (static_cast<uint32_t>(working_input[idx++]) << (i * 8));
                 }
 
-                if (idx + compressed_sz > input.size()) {
-                    throw std::runtime_error("Corrupted .sxz file: Truncated block payload");
+                if (idx + compressed_sz > working_input.size()) {
+                    throw std::runtime_error("Invalid block data: Truncated payload");
                 }
 
-                std::vector<uint8_t> payload(input.begin() + idx, input.begin() + idx + compressed_sz);
+                std::vector<uint8_t> payload(working_input.begin() + idx, working_input.begin() + idx + compressed_sz);
                 idx += compressed_sz;
 
                 auto decomp_block = decompress_single_block(payload, pipeline);
@@ -452,13 +480,14 @@ public:
             }
             binfo.compressed_size = static_cast<uint32_t>(input.size());
             info.blocks.push_back(binfo);
-        } else if (info.version >= 0x03 && info.version <= 0x05) {
+        } else if (info.version >= 0x03 && info.version <= 0x06) {
+            size_t idx = 5;
+            if (info.version == 0x06) idx += 9;
             uint32_t num_blocks = 0;
             for (int i = 0; i < 4; ++i) {
-                num_blocks |= (static_cast<uint32_t>(input[5 + i]) << (i * 8));
+                num_blocks |= (static_cast<uint32_t>(input[idx++]) << (i * 8));
             }
 
-            size_t idx = 9;
             for (uint32_t b = 0; b < num_blocks; ++b) {
                 BlockInfo binfo;
                 binfo.block_index = b;

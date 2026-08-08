@@ -55,6 +55,7 @@ void print_usage(const char* prog_name) {
               << "  -E, --auto-entropy Enable dynamic entropy auto-tuning based on variance\n"
               << "  -Ea, --brute-force Brute-force search for the optimal entropy threshold\n"
               << "  -He                High-Entropy Fracture (force extremely tiny 256B blocks)\n"
+              << "  -P, --password     Set password for encryption/decryption\n"
               << "  -t, --threads      Number of threads to use (default: 0 = auto)\n\n"
               << "Pipeline string format:\n"
               << "  e.g., 'LZ77,HUFFMAN' or 'BWT,MTF,RLE,NEURAL'\n";
@@ -111,6 +112,7 @@ int sxzip_cli(int argc, char* argv[]) {
             unsigned int threads = 0;
             size_t entropy_threshold = is_eval ? static_cast<size_t>(-3) : 200;
             bool high_entropy_fracture = false;
+            std::string password = "";
             std::vector<sxzip::AlgorithmType> forced_pipeline;
 
             int arg_start = is_eval ? 3 : 4;
@@ -120,6 +122,13 @@ int sxzip_cli(int argc, char* argv[]) {
                     adaptive = true;
                 } else if (arg == "-He") {
                     high_entropy_fracture = true;
+                } else if (arg == "-P" || arg == "--password") {
+                    if (i + 1 < argc) {
+                        password = argv[++i];
+                    } else {
+                        std::cerr << "Error: --password requires an argument\n";
+                        return 1;
+                    }
                 } else if (arg == "--pipeline" || arg == "-p") {
                     if (i + 1 < argc) {
                         forced_pipeline = sxzip::SxzipEngine::parse_pipeline_str(argv[++i]);
@@ -203,7 +212,7 @@ int sxzip_cli(int argc, char* argv[]) {
                 std::vector<std::pair<size_t, size_t>> results;
                 for (size_t cand : candidates) {
                     bool inner_silent = true; // Always silence intermediate progress bars
-                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent, high_entropy_fracture);
+                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent, high_entropy_fracture, password);
                     if (!silent_eval) std::cout << "  -> Threshold " << std::setw(4) << cand << " yields " << temp_data.size() << " bytes\n";
                     results.push_back({cand, temp_data.size()});
                     if (temp_data.size() < best_size) {
@@ -229,7 +238,7 @@ int sxzip_cli(int argc, char* argv[]) {
                     if (already_tested) continue;
 
                     bool inner_silent = true;
-                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent, high_entropy_fracture);
+                    auto temp_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, cand, inner_silent, high_entropy_fracture, password);
                     if (!silent_eval) std::cout << "  ~> Fine-tune " << std::setw(4) << cand << " yields " << temp_data.size() << " bytes\n";
                     results.push_back({cand, temp_data.size()});
                     if (temp_data.size() < best_size) {
@@ -255,7 +264,7 @@ int sxzip_cli(int argc, char* argv[]) {
                 std::cout << "[sxzip Brute-Force] Optimal threshold found: " << best_thresh << " (" << best_size << " bytes)\n";
                 compressed_data = std::move(best_data);
             } else {
-                compressed_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, entropy_threshold, silent_eval, high_entropy_fracture);
+                compressed_data = sxzip::SxzipEngine::compress(input_data, forced_pipeline, adaptive, block_size, threads, entropy_threshold, silent_eval, high_entropy_fracture, password);
             }
             
             auto end_time = std::chrono::high_resolution_clock::now();
@@ -280,12 +289,25 @@ int sxzip_cli(int argc, char* argv[]) {
             }
             std::string input_path = argv[2];
             std::string output_path = argv[3];
+            std::string password = "";
+            for (int i = 4; i < argc; ++i) {
+                std::string arg = argv[i];
+                if (arg == "-P" || arg == "--password") {
+                    if (i + 1 < argc) {
+                        password = argv[++i];
+                    } else {
+                        std::cerr << "Error: --password requires an argument\n";
+                        return 1;
+                    }
+                }
+            }
 
-            std::cout << "[sxzip] Reading compressed file " << input_path << "...\n";
-            auto compressed_data = read_file(input_path);
-
+            std::cout << "[sxzip] Reading " << input_path << "...\n";
+            std::vector<uint8_t> input_data = read_file(input_path);
+            
             auto start_time = std::chrono::high_resolution_clock::now();
-            auto decompressed_data = sxzip::SxzipEngine::decompress(compressed_data);
+            std::cout << "[sxzip] Decompressing...\n";
+            std::vector<uint8_t> decompressed_data = sxzip::SxzipEngine::decompress(input_data, password);
             auto end_time = std::chrono::high_resolution_clock::now();
 
             write_file(output_path, decompressed_data);
